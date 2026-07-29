@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航天模拟器图标制作工具</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            touch-action: manipulation;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0d1b2f 0%, #1a2b3c 100%);
+            color: #e0f0ff;
+            padding: 10px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #0d2b4d, #1a4a7a);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2a5a8a;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #4fc3f7;
+            text-shadow: 0 0 8px rgba(79, 195, 247, 0.6);
+            letter-spacing: 0.5px;
+        }
+        
+        .subtitle {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin: 5px auto;
+            line-height: 1.0;
+        }
+        
+        .mobile-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .mobile-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: rgba(15, 35, 65, 0.8);
+            border: 1px solid #2a5a8a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-tab.active {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: #0a1e32;
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.6);
+        }
+        
+        .content-panel {
+            background: rgba(15, 35, 65, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2a5a8a;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #64ffda;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .section-title::before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 16px;
+            background: #64ffda;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2a5a8a, #1a4a7a);
+            color: #e0f0ff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            font-size: 0.85rem;
+        }
+        
+        .btn:hover, .btn:active {
+            background: linear-gradient(135deg, #3a6aa0, #2a5a90);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn.active {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: #0a1e32;
+            box-shadow: 0 0 12px rgba(79, 195, 247, 0.6);
+        }
+        
+        .parts-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .part-btn {
+            background: rgba(35, 65, 115, 0.7);
+            border: 1px solid #3a5a9a;
+            border-radius: 8px;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .part-btn:hover, .part-btn:active {
+            background: rgba(45, 80, 145, 0.85);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border-color: #4fc3f7;
+        }
+        
+        .part-btn.active {
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.9), rgba(100, 255, 218, 0.8));
+            border-color: #4fc3f7;
+            box-shadow: 0 0 15px rgba(79, 195, 247, 0.6);
+            color: #0a1e32;
+        }
+        
+        .part-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(25, 45, 85, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #64ffda;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .blueprint-area {
+            width: 100%;
+            height: 300px;
+            background: rgba(62, 96, 150, 1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+            border: 1px solid #3a5a9a;
+            margin-bottom: 15px;
+        }
+        
+        #blueprint-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .json-display {
+            background: rgba(15, 30, 45, 0.85);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
+            overflow: auto;
+            border: 1px solid #2a5a8a;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            color: #a0d0ff;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+            max-height: 200px;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #2a5a8a, #1a4a7a);
+            color: #e0f0ff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn:hover, .action-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-btn.export {
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+        }
+        
+        .action-btn.reset {
+            background: linear-gradient(135deg, #e53935, #b71c1c);
+        }
+        
+        .action-btn.copy {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+        
+        .action-btn.download {
+            background: linear-gradient(135deg, #ff8f00, #e65100);
+        }
+        
+        .status-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(10, 20, 40, 0.85);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            z-index: 10;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a5a9a;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .zoom-btn {
+            width: 35px;
+            height: 35px;
+            background: rgba(25, 45, 85, 0.85);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            color: #e0f0ff;
+            border: 1px solid #3a5a9a;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .zoom-btn:hover, .zoom-btn:active {
+            background: rgba(45, 80, 145, 0.95);
+            transform: scale(1.1);
+        }
+        
+        .rotation-indicator {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(10, 20, 40, 0.85);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            z-index: 10;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a5a9a;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(25, 45, 75, 0.95);
+            color: #e0f0ff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #4fc3f7;
+            transform: translateX(120%);
+            transition: transform 0.4s ease-out;
+            z-index: 1000;
+            max-width: 300px;
+            font-size: 0.9rem;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .image-controls, .intensity-control {
+            background: rgba(15, 35, 65, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2a5a8a;
+        }
+        
+        .intensity-slider {
+            width: 100%;
+            height: 20px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #ffffff, #000000);
+            border-radius: 10px;
+            margin: 12px 0;
+            outline: none;
+        }
+        
+        .intensity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            border: 2px solid #e0f0ff;
+            box-shadow: 0 0 8px rgba(79, 195, 247, 0.8);
+        }
+        
+        .intensity-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(10, 20, 40, 0.7);
+            border: 1px solid #3a5a9a;
+            color: #e0f0ff;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .intensity-preview {
+            width: 100%;
+            height: 35px;
+            border-radius: 6px;
+            margin-top: 8px;
+            background: linear-gradient(to right, #ffffff, #000000);
+            border: 1px solid #3a5a9a;
+        }
+        
+        .image-preview-container {
+            width: 100%;
+            height: 120px;
+            background: rgba(10, 20, 40, 0.7);
+            border-radius: 6px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #3a5a9a;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        
+        .no-image {
+            color: #a0d0ff;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .history-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .compact-label {
+            font-size: 0.8rem;
+            color: #a0d0ff;
+            margin-bottom: 5px;
+        }
+        
+        .panel-content {
+            display: none;
+        }
+        
+        .panel-content.active {
+            display: block;
+        }
+        
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        
+        .collapsible-icon {
+            transition: transform 0.3s;
+        }
+        
+        .collapsible-header.active .collapsible-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>航天模拟器制作工具</h1>
+            <p class="subtitle">创建、编辑并导出蓝图</p>
+            <p class="subtitle">目前仅支持油箱零件，制作过程中尽量避免重叠</p>
+            <p class="subtitle">全程序为甲鱼一人独立开发（智齿一下叭QAQ）</p>
+            <p class="subtitle">获取更新或上报bug加QQ群981614589</p>
+            <p class="subtitle">手机版 v0.4.2（测试版）</p>
+        </header>
+        
+        <div class="mobile-tabs">
+            <div class="mobile-tab active" data-tab="design">设计面板</div>
+            <div class="mobile-tab" data-tab="background">背景设置</div>
+            <div class="mobile-tab" data-tab="json">JSON数据</div>
+        </div>
+        
+        <div class="panel-content active" id="design-panel">
+            <div class="content-panel">
+                <div class="section">
+                    <h3 class="section-title">操作模式</h3>
+                    <div class="mode-buttons">
+                        <button id="move-mode" class="btn active">移动</button>
+                        <button id="add-mode" class="btn">添加零件</button>
+                    </div>
+                    <div class="history-controls">
+                        <button id="undo-btn" class="btn" title="撤销操作">撤销</button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">零件库</h3>
+                    <div class="parts-list">
+                        <button id="fuel-tank-btn" class="part-btn">
+                            <div class="part-icon">油</div>
+                            <span>油箱</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="blueprint-area">
+                <canvas id="blueprint-canvas"></canvas>
+                <div id="rotation-indicator" class="rotation-indicator">旋转: 0°</div>
+                <div id="fixed-point-indicator" class="fixed-point"></div>
+                
+                <div class="status-bar">
+                    <div>坐标: <span id="cursor-coords">(0.0, 0.0)</span> | 缩放: <span id="zoom-level">100%</span></div>
+                </div>
+                
+                <div class="zoom-controls">
+                    <div class="zoom-btn" id="zoom-in">+</div>
+                    <div class="zoom-btn" id="zoom-out">-</div>
+                    <div class="zoom-btn" id="reset-zoom">↺</div>
+                </div>
+            </div>
+            
+            <div class="intensity-control">
+                <h3 class="section-title">烧灼值调节</h3>
+                <label class="compact-label">强度: <span id="intensity-value">1.5</span></label>
+                <input type="range" id="intensity-slider" min="0" max="1.5" step="0.1" value="1.5" class="intensity-slider">
+                <input type="number" id="intensity-input" min="0" max="1.5" step="0.1" value="1.5" class="intensity-input">
+                <div class="intensity-preview"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="export-btn" class="action-btn export">导出蓝图</button>
+                <button id="copy-json-btn" class="action-btn copy">复制JSON</button>
+                <button id="download-zip-btn" class="action-btn download">下载压缩包</button>
+                <button id="reset-btn" class="action-btn reset">重置设计</button>
+            </div>
+        </div>
+        
+        <div class="panel-content" id="background-panel">
+            <div class="image-controls">
+                <h3 class="section-title">背景图片</h3>
+                <input type="file" id="image-upload" accept="image/*" style="display: none">
+                <button id="import-image-btn" class="btn">导入图片</button>
+                <button id="clear-image-btn" class="btn" style="margin-top: 10px;">清除图片</button>
+                
+                <div class="image-preview-container">
+                    <div class="no-image">未导入图片</div>
+                    <img id="image-preview" class="image-preview" alt="背景图片预览">
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <label class="compact-label">透明度: <span id="opacity-value">70</span>%</label>
+                    <input type="range" id="image-opacity" min="0" max="100" value="70" class="intensity-slider">
+                </div>
+                <div style="margin-top: 15px;">
+                    <label class="compact-label">缩放比例: <span id="scale-value">100</span>‰</label>
+                    <input type="range" id="image-scale" min="1" max="1000" value="100" class="intensity-slider">
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel-content" id="json-panel">
+            <h3 class="section-title">蓝图JSON数据</h3>
+            <div class="json-display" id="json-display">
+{
+  "center": 10.0,
+  "parts": [],
+  "stages": [],
+  "rotation": 0.0,
+  "offset": {
+    "x": 0.0,
+    "y": 0.0
+  },
+  "interiorView": false
+}
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    <script>
+        // 状态管理对象
+        const state = {
+            mode: 'move',
+            currentPart: null,
+            zoom: 1.0,
+            offset: { x: 0, y: 0 },
+            selectedParts: [],
+            isDragging: false,
+            dragStart: { x: 0, y: 0 },
+            isSelecting: false,
+            selectionStart: { x: 0, y: 0 },
+            selectionEnd: { x: 0, y: 0 },
+            isAddingPart: false,
+            addPartPoints: [],
+            parts: [],
+            cursorPos: { x: 0, y: 0 },
+            lastMousePos: { x: 0, y: 0 },
+            gridSize: 60,
+            gridColor: '#39588A',
+            edgeColor: '#39588A',
+            symmetryColor: '#344F7A',
+            labelBaseSize: 10,
+            gridSettings: {
+                showLabels: true,
+                labelColor: '#a0d0ff'
+            },
+            history: [],
+            currentHistoryIndex: -1,
+            backgroundImage: null,
+            imageOpacity: 0.7,
+            intensity: 1.5,
+            selectedPart: null,
+            imageScale: 1.0
+        };
+
+        // DOM元素引用
+        const canvas = document.getElementById('blueprint-canvas');
+        const ctx = canvas.getContext('2d');
+        const jsonDisplay = document.getElementById('json-display');
+        const cursorCoordsEl = document.getElementById('cursor-coords');
+        const zoomLevelEl = document.getElementById('zoom-level');
+        const moveModeBtn = document.getElementById('move-mode');
+        const addModeBtn = document.getElementById('add-mode');
+        const fuelTankBtn = document.getElementById('fuel-tank-btn');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetZoomBtn = document.getElementById('reset-zoom');
+        const rotationIndicator = document.getElementById('rotation-indicator');
+        const fixedPointIndicator = document.getElementById('fixed-point-indicator');
+        const copyJsonBtn = document.getElementById('copy-json-btn');
+        const downloadZipBtn = document.getElementById('download-zip-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const notification = document.getElementById('notification');
+        const undoBtn = document.getElementById('undo-btn');
+        const importImageBtn = document.getElementById('import-image-btn');
+        const clearImageBtn = document.getElementById('clear-image-btn');
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const imageOpacity = document.getElementById('image-opacity');
+        const opacityValue = document.getElementById('opacity-value');
+        const intensitySlider = document.getElementById('intensity-slider');
+        const intensityInput = document.getElementById('intensity-input');
+        const intensityValue = document.getElementById('intensity-value');
+        const intensityPreview = document.querySelector('.intensity-preview');
+        const imageScale = document.getElementById('image-scale');
+        const scaleValue = document.getElementById('scale-value');
+        const mobileTabs = document.querySelectorAll('.mobile-tab');
+        const panelContents = document.querySelectorAll('.panel-content');
+
+        // 初始化画布
+        function initCanvas() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd);
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('wheel', handleMouseWheel);
+            draw();
+        }
+
+        // 调整画布大小
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            draw();
+        }
+
+        // 主绘制函数
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            
+            // 绘制背景图片
+            if (state.backgroundImage) {
+                ctx.globalAlpha = state.imageOpacity;
+                const scaledGridSize = state.gridSize * state.zoom;
+                const imgWidth = state.backgroundImage.width * scaledGridSize * state.imageScale;
+                const imgHeight = state.backgroundImage.height * scaledGridSize * state.imageScale;
+                const imgX = state.offset.x;
+                const imgY = state.offset.y;
+                
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(state.backgroundImage, imgX, imgY, imgWidth, imgHeight);
+                ctx.imageSmoothingEnabled = true;
+                ctx.globalAlpha = 1.0;
+            }
+            
+            drawSymmetryAxis();
+            
+            state.parts.forEach(part => {
+                drawPart(part);
+            });
+            
+            if (state.isAddingPart && state.addPartPoints.length > 0) {
+                drawAddingPart();
+            }
+            
+            state.selectedParts.forEach(part => {
+                drawPartSelection(part);
+            });
+            
+            if (state.isSelecting) {
+                drawSelectionBox();
+            }
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            const scaledGridSize = state.gridSize * state.zoom;
+            const edgeLineWidth = 4 * state.zoom;
+            const dotSize = 2 * state.zoom;
+            
+            const visibleLeft = Math.floor((-state.offset.x) / scaledGridSize) - 1;
+            const visibleRight = Math.ceil((canvas.width - state.offset.x) / scaledGridSize) + 1;
+            const visibleTop = Math.floor((-state.offset.y) / scaledGridSize) - 1;
+            const visibleBottom = Math.ceil((canvas.height - state.offset.y) / scaledGridSize) + 1;
+            
+            ctx.strokeStyle = state.edgeColor;
+            ctx.lineWidth = edgeLineWidth;
+            
+            for (let x = visibleLeft; x <= visibleRight; x++) {
+                const screenX = x * scaledGridSize + state.offset.x;
+                ctx.beginPath();
+                ctx.moveTo(screenX, 0);
+                ctx.lineTo(screenX, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = visibleTop; y <= visibleBottom; y++) {
+                const screenY = y * scaledGridSize + state.offset.y;
+                ctx.beginPath();
+                ctx.moveTo(0, screenY);
+                ctx.lineTo(canvas.width, screenY);
+                ctx.stroke();
+            }
+            
+            ctx.fillStyle = state.gridColor;
+            for (let x = visibleLeft; x <= visibleRight; x++) {
+                for (let y = visibleTop; y <= visibleBottom; y++) {
+                    const screenX = x * scaledGridSize + state.offset.x;
+                    const screenY = y * scaledGridSize + state.offset.y;
+                    
+                    if (Number.isInteger(x) && Number.isInteger(y)) {
+                        ctx.beginPath();
+                        ctx.arc(screenX, screenY, dotSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            if (state.gridSettings.showLabels) {
+                ctx.fillStyle = state.gridSettings.labelColor;
+                const fontSize = state.labelBaseSize * state.zoom;
+                ctx.font = `${fontSize}px Arial`;
+                
+                for (let x = visibleLeft; x <= visibleRight; x++) {
+                    if (Number.isInteger(x)) {
+                        const screenX = x * scaledGridSize + state.offset.x;
+                        ctx.fillText(x, screenX + 5 * state.zoom, 20 * state.zoom);
+                    }
+                }
+                
+                for (let y = visibleTop; y <= visibleBottom; y++) {
+                    if (Number.isInteger(y) && y !== 0) {
+                        const screenY = y * scaledGridSize + state.offset.y;
+                        ctx.fillText(y, 5 * state.zoom, screenY - 5 * state.zoom);
+                    }
+                }
+                
+                const originX = state.offset.x;
+                const originY = state.offset.y;
+                ctx.fillText("(0,0)", originX + 5 * state.zoom, originY - 5 * state.zoom);
+            }
+        }
+
+        // 绘制对称轴线
+        function drawSymmetryAxis() {
+            const scaledGridSize = state.gridSize * state.zoom;
+            const xPos = 10 * scaledGridSize + state.offset.x;
+            
+            ctx.strokeStyle = state.symmetryColor;
+            ctx.lineWidth = (5/3) * 3 * state.zoom;
+            ctx.beginPath();
+            ctx.moveTo(xPos, 0);
+            ctx.lineTo(xPos, canvas.height);
+            ctx.stroke();
+        }
+
+        // 绘制零件
+        function drawPart(part) {
+            switch(part.type) {
+                case 'fuel_tank':
+                    drawFuelTank(part);
+                    break;
+            }
+        }
+        
+        function getBurnColor(intensity) {
+            const grayValue = Math.floor(255 * (1 - intensity / 1.5));
+            return `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+        }
+        
+        // 绘制燃料箱
+        function drawFuelTank(part) {
+            const { x, y } = part.position;
+            const width = part.width;
+            const height = part.height;
+            const rotation = part.rotation;
+            const scaledGridSize = state.gridSize * state.zoom;
+            
+            const screenX = x * scaledGridSize + state.offset.x;
+            const screenY = y * scaledGridSize + state.offset.y;
+            const screenWidth = width * scaledGridSize;
+            const screenHeight = height * scaledGridSize;
+            
+            ctx.save();
+            ctx.translate(screenX, screenY);
+            ctx.rotate(rotation * Math.PI / 180);
+            
+            // 计算烧灼颜色
+            const burnColor = getBurnColor(part.intensity);
+            ctx.fillStyle = burnColor;
+            const fuelHeight = screenHeight * part.fuelPercent;
+            ctx.fillRect(-screenWidth/2, 0, screenWidth, fuelHeight);
+            
+            ctx.restore();
+        }
+
+        // 绘制零件选中状态
+        function drawPartSelection(part) {
+            const { x, y } = part.position;
+            const scaledGridSize = state.gridSize * state.zoom;
+            
+            const screenX = x * scaledGridSize + state.offset.x;
+            const screenY = y * scaledGridSize + state.offset.y;
+            const screenWidth = (part.width || 1.5) * scaledGridSize;
+            const screenHeight = (part.height || 1.5) * scaledGridSize;
+            
+            ctx.save();
+            ctx.translate(screenX, screenY);
+            ctx.rotate(part.rotation * Math.PI / 180);
+            
+            ctx.strokeStyle = "#ee45e4";
+            ctx.lineWidth = (3/2) * 1.5 * state.zoom;
+            ctx.setLineDash([0 * state.zoom, 30 * state.zoom]);
+            ctx.strokeRect(-screenWidth/2, 0, screenWidth, screenHeight);
+            ctx.setLineDash([]);
+            
+            ctx.restore();
+        }
+
+        // 绘制选择框
+        function drawSelectionBox() {
+            const startX = state.selectionStart.x;
+            const startY = state.selectionStart.y;
+            const endX = state.selectionEnd.x;
+            const endY = state.selectionEnd.y;
+            
+            let box = document.querySelector('.selection-box');
+            if (!box) {
+                box = document.createElement('div');
+                box.className = 'selection-box';
+                document.querySelector('.blueprint-area').appendChild(box);
+            }
+            
+            box.style.left = Math.min(startX, endX) + 'px';
+            box.style.top = Math.min(startY, endY) + 'px';
+            box.style.width = Math.abs(endX - startX) + 'px';
+            box.style.height = Math.abs(endY - startY) + 'px';
+        }
+
+        // 绘制正在添加的零件
+        function drawAddingPart() {
+            const points = state.addPartPoints;
+            const scaledGridSize = state.gridSize * state.zoom;
+            
+            ctx.fillStyle = '#00f2fe';
+            points.forEach(point => {
+                const screenX = point.x * scaledGridSize + state.offset.x;
+                const screenY = point.y * scaledGridSize + state.offset.y;
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, 1 * state.zoom, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            if (points.length >= 2) {
+                const p1 = points[0];
+                const p2 = points[1];
+                const screenX1 = p1.x * scaledGridSize + state.offset.x;
+                const screenY1 = p1.y * scaledGridSize + state.offset.y;
+                const screenX2 = p2.x * scaledGridSize + state.offset.x;
+                const screenY2 = p2.y * scaledGridSize + state.offset.y;
+                
+                ctx.strokeStyle = '#00f2fe';
+                ctx.lineWidth = 2 * state.zoom;
+                ctx.beginPath();
+                ctx.moveTo(screenX1, screenY1);
+                ctx.lineTo(screenX2, screenY2);
+                ctx.stroke();
+            }
+            
+            if (points.length >= 2 && state.currentPart === 'fuel_tank') {
+                const p1 = points[0];
+                const p2 = points[1];
+                const cursor = state.cursorPos;
+
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const perpX = -dy;
+                const perpY = dx;
+                const perpLength = Math.sqrt(perpX * perpX + perpY * perpY);
+                const toCursorX = cursor.x - p2.x;
+                const toCursorY = cursor.y - p2.y;
+                
+                let height = 0;
+                if (perpLength > 0) {
+                    const unitPerpX = perpX / perpLength;
+                    const unitPerpY = perpY / perpLength;
+                    height = toCursorX * unitPerpX + toCursorY * unitPerpY;
+                }
+                
+                const centerX = (p1.x + p2.x) / 2;
+                const centerY = (p1.y + p2.y) / 2;
+                const width = Math.sqrt(dx * dx + dy * dy);
+                const rotation = -Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+                const screenX = centerX * scaledGridSize + state.offset.x;
+                const screenY = centerY * scaledGridSize + state.offset.y;
+                const screenWidth = width * scaledGridSize;
+                const screenHeight = height * scaledGridSize;
+                
+                ctx.save();
+                ctx.translate(screenX, screenY);
+                ctx.rotate(-rotation * Math.PI / 180);
+                
+                ctx.strokeStyle = '#ee45e4';
+                ctx.lineWidth = 0.5 * state.zoom;
+                ctx.setLineDash([5 * state.zoom, 3 * state.zoom]);
+                ctx.strokeRect(-screenWidth/2, 0, screenWidth, screenHeight);
+                ctx.setLineDash([]);
+                
+                ctx.restore();
+                
+                rotationIndicator.textContent = `旋转: ${rotation.toFixed(1)}°`;
+                rotationIndicator.style.display = 'block';
+                fixedPointIndicator.style.left = `${screenX}px`;
+                fixedPointIndicator.style.top = `${screenY}px`;
+                fixedPointIndicator.style.display = 'block';
+            }
+        }
+
+        // 鼠标事件处理
+        function handleMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            state.lastMousePos = { x, y };
+            
+            if (e.button === 0) {
+                if (state.mode === 'move') {
+                    const clickedPart = findPartAtPosition(x, y);
+                    if (clickedPart) {
+                        state.isDragging = true;
+                        state.dragStart = { x, y };
+                        if (!e.ctrlKey) {
+                            state.selectedParts = [clickedPart];
+                        } else if (!state.selectedParts.includes(clickedPart)) {
+                            state.selectedParts.push(clickedPart);
+                        }
+                    } else {
+                        state.isDragging = true;
+                        state.dragStart = { x, y };
+                        state.selectedParts = [];
+                    }
+                } else if (state.mode === 'add' && state.currentPart) {
+                    const scaledGridSize = state.gridSize * state.zoom;
+                    const worldX = (x - state.offset.x) / scaledGridSize;
+                    const worldY = (y - state.offset.y) / scaledGridSize;
+                    
+                    if (state.currentPart === 'fuel_tank') {
+                        state.addPartPoints.push({ x: worldX, y: worldY });
+                        
+                        if (state.addPartPoints.length === 3) {
+                            createFuelTank();
+                            state.addPartPoints = [];
+                            state.isAddingPart = false;
+                            rotationIndicator.style.display = 'none';
+                            fixedPointIndicator.style.display = 'none';
+                        } else {
+                            state.isAddingPart = true;
+                        }
+                    } else {
+                        createPart(state.currentPart, worldX, worldY);
+                    }
+                }
+            } else if (e.button === 2) {
+                if (state.mode === 'move') {
+                    state.isSelecting = true;
+                    state.selectionStart = { x, y };
+                    state.selectionEnd = { x, y };
+                } else if (state.mode === 'add' && state.isAddingPart) {
+                    state.addPartPoints = [];
+                    state.isAddingPart = false;
+                    rotationIndicator.style.display = 'none';
+                    fixedPointIndicator.style.display = 'none';
+                }
+            }
+            
+            draw();
+        }
+
+        // 触摸事件处理
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                state.lastMousePos = { x, y };
+                
+                if (state.mode === 'move') {
+                    const clickedPart = findPartAtPosition(x, y);
+                    if (clickedPart) {
+                        state.isDragging = true;
+                        state.dragStart = { x, y };
+                        state.selectedParts = [clickedPart];
+                    } else {
+                        state.isDragging = true;
+                        state.dragStart = { x, y };
+                        state.selectedParts = [];
+                    }
+                } else if (state.mode === 'add' && state.currentPart) {
+                    const scaledGridSize = state.gridSize * state.zoom;
+                    const worldX = (x - state.offset.x) / scaledGridSize;
+                    const worldY = (y - state.offset.y) / scaledGridSize;
+                    
+                    if (state.currentPart === 'fuel_tank') {
+                        state.addPartPoints.push({ x: worldX, y: worldY });
+                        
+                        if (state.addPartPoints.length === 3) {
+                            createFuelTank();
+                            state.addPartPoints = [];
+                            state.isAddingPart = false;
+                            rotationIndicator.style.display = 'none';
+                            fixedPointIndicator.style.display = 'none';
+                        } else {
+                            state.isAddingPart = true;
+                        }
+                    }
+                }
+            }
+            
+            draw();
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (e.touches.length === 1 && state.isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                const dx = x - state.lastMousePos.x;
+                const dy = y - state.lastMousePos.y;
+                
+                if (state.selectedParts.length > 0) {
+                    const scaledGridSize = state.gridSize * state.zoom;
+                    const moveX = dx / scaledGridSize;
+                    const moveY = dy / scaledGridSize;
+                    
+                    state.selectedParts.forEach(part => {
+                        part.position.x += moveX;
+                        part.position.y += moveY;
+                    });
+                } else {
+                    state.offset.x += dx;
+                    state.offset.y += dy;
+                }
+                
+                state.lastMousePos = { x, y };
+            }
+            
+            draw();
+        }
+
+        function handleTouchEnd(e) {
+            state.isDragging = false;
+            state.isSelecting = false;
+            updateJsonDisplay();
+            saveStateToHistory();
+            draw();
+        }
+
+        function handleMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const scaledGridSize = state.gridSize * state.zoom;
+            const worldX = (x - state.offset.x) / scaledGridSize;
+            const worldY = (y - state.offset.y) / scaledGridSize;
+            cursorCoordsEl.textContent = `(${worldX.toFixed(1)}, ${worldY.toFixed(1)})`;
+            state.cursorPos = { x: worldX, y: worldY };
+            
+            if (state.isDragging) {
+                const dx = x - state.lastMousePos.x;
+                const dy = y - state.lastMousePos.y;
+                
+                if (state.selectedParts.length > 0) {
+                    const moveX = dx / scaledGridSize;
+                    const moveY = dy / scaledGridSize;
+                    
+                    state.selectedParts.forEach(part => {
+                        part.position.x += moveX;
+                        part.position.y += moveY;
+                    });
+                } else {
+                    state.offset.x += dx;
+                    state.offset.y += dy;
+                }
+                
+                state.lastMousePos = { x, y };
+            } else if (state.isSelecting) {
+                state.selectionEnd = { x, y };
+            }
+            
+            state.lastMousePos = { x, y };
+            draw();
+        }
+
+        function handleMouseUp(e) {
+            if (e.button === 0) {
+                state.isDragging = false;
+            } else if (e.button === 2 && state.isSelecting) {
+                state.isSelecting = false;
+                document.querySelector('.selection-box')?.remove();
+                
+                const startX = Math.min(state.selectionStart.x, state.selectionEnd.x);
+                const startY = Math.min(state.selectionStart.y, state.selectionEnd.y);
+                const endX = Math.max(state.selectionStart.x, state.selectionEnd.x);
+                const endY = Math.max(state.selectionStart.y, state.selectionEnd.y);
+                
+                state.selectedParts = state.parts.filter(part => {
+                    const scaledGridSize = state.gridSize * state.zoom;
+                    const screenX = part.position.x * scaledGridSize + state.offset.x;
+                    const screenY = part.position.y * scaledGridSize + state.offset.y;
+                    
+                    return screenX >= startX && screenX <= endX && 
+                           screenY >= startY && screenY <= endY;
+                });
+            }
+            
+            updateJsonDisplay();
+            saveStateToHistory();
+            draw();
+        }
+
+        function handleMouseWheel(e) {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const wheel = e.deltaY < 0 ? 1 : -1;
+            const zoom = Math.exp(wheel * zoomIntensity);
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const scaledGridSize = state.gridSize * state.zoom;
+            const worldX = (mouseX - state.offset.x) / scaledGridSize;
+            const worldY = (mouseY - state.offset.y) / scaledGridSize;
+            
+            state.zoom *= zoom;
+            state.zoom = Math.max(0.25, Math.min(25, state.zoom));
+            zoomLevelEl.textContent = `${Math.round(state.zoom * 100)}%`;
+            
+            const newScaledGridSize = state.gridSize * state.zoom;
+            state.offset.x = mouseX - worldX * newScaledGridSize;
+            state.offset.y = mouseY - worldY * newScaledGridSize;
+            
+            draw();
+        }
+
+        // 查找零件
+        function findPartAtPosition(x, y) {
+            for (let i = state.parts.length - 1; i >= 0; i--) {
+                const part = state.parts[i];
+                const scaledGridSize = state.gridSize * state.zoom;
+                const screenX = part.position.x * scaledGridSize + state.offset.x;
+                const screenY = part.position.y * scaledGridSize + state.offset.y;
+                const halfWidth = (part.width || 1) * scaledGridSize / 2;
+                const halfHeight = (part.height || 1) * scaledGridSize / 2;
+                
+                if (Math.abs(x - screenX) <= halfWidth && 
+                    Math.abs(y - screenY) <= halfHeight) {
+                    return part;
+                }
+            }
+            return null;
+        }
+
+        // 创建燃料箱
+        function createFuelTank() {
+            if (state.addPartPoints.length !== 3) return;
+            
+            const [p1, p2, p3] = state.addPartPoints;
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const perpX = -dy;
+            const perpY = dx;
+            const perpLength = Math.sqrt(perpX * perpX + perpY * perpY);
+            
+            let height = 0;
+            if (perpLength > 0) {
+                const unitPerpX = perpX / perpLength;
+                const unitPerpY = perpY / perpLength;
+                const toP3X = p3.x - p2.x;
+                const toP3Y = p3.y - p2.y;
+                height = toP3X * unitPerpX + toP3Y * unitPerpY;
+            }
+            
+            const centerX = (p1.x + p2.x) / 2;
+            const centerY = (p1.y + p2.y) / 2;
+            const width = Math.sqrt(dx * dx + dy * dy);
+            const rotation = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+            
+            const fuelTank = {
+                type: 'fuel_tank',
+                position: { x: centerX, y: centerY },
+                width: width,
+                height: height,
+                rotation: rotation,
+                fuelPercent: 1.0,
+                intensity: state.intensity
+            };
+            
+            state.parts.push(fuelTank);
+            state.selectedParts = [fuelTank];
+            saveStateToHistory();
+        }
+
+        // 获取零件名称
+        function getPartName(partType) {
+            const names = {
+                'fuel_tank': 'Fuel Tank',
+            };
+            return names[partType] || '零件';
+        }
+
+        // 更新JSON显示
+        function updateJsonDisplay() {
+            const partsJson = state.parts.map(part => {
+                let json = `  {
+    "n": "${getPartName(part.type)}", 
+    "p": { 
+      "x": ${part.position.x.toFixed(6)},
+      "y": ${(-part.position.y).toFixed(6)}
+    },
+    "o": { 
+      "x": ${(part.width /100 ).toFixed(6)}, 
+      "y": ${(part.height *100).toFixed(6)}, 
+      "z": ${(180 - (part.rotation || 0)).toFixed(2)}
+    },
+    "t": "-Infinity",
+    "burns": {
+        "angle": 0.0,
+        "intensity": ${part.intensity.toFixed(1)} ,
+        "x": 0.0,  
+        "top": "",
+        "bottom": ""
+    }`;
+                
+                if (part.type === 'fuel_tank') {
+                    json += `,
+    "N": { 
+      "width_original": 100.0,
+      "width_a": 100.0,
+      "width_b": 100.0,
+      "height": 0.01,
+      "fuel_percent": 0
+    }`;
+                } else {
+                    json += `,
+    "N": {}`;
+                }
+                
+                json += `,
+    "T": { 
+      "color_tex": "_",
+      "shape_tex": "Flat"
+    }  
+  }`;
+                return json;
+            }).filter(str => str !== '').join(',\n'); 
+            
+            const json = `{
+  "center": 10.0,
+  "parts": [ 
+${partsJson}
+  ],
+  "stages": [],
+  "rotation": 0.0, 
+  "offset": { 
+    "x": 0.0,
+    "y": 0.0
+  },
+  "interiorView": false 
+}`;
+            
+            jsonDisplay.textContent = json;
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 复制JSON到剪贴板
+        function copyJsonToClipboard() {
+            const json = jsonDisplay.textContent;
+            navigator.clipboard.writeText(json)
+                .then(() => {
+                    showNotification('JSON已复制到剪贴板！');
+                })
+                .catch(err => {
+                    showNotification('复制失败: ' + err);
+                });
+        }
+
+        // 下载压缩包
+        function downloadBlueprintZip() {
+            const json = jsonDisplay.textContent;
+            const version = '"1.5.10.2"';
+            
+            // 创建JSZip实例
+            const zip = new JSZip();
+            
+            // 添加Blueprint.txt文件
+            zip.file("Blueprint.txt", json);
+            
+            // 添加Version.txt文件
+            zip.file("Version.txt", version);
+            
+            // 生成zip文件并下载
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                // 使用FileSaver保存文件
+                saveAs(content, "spacecraft-blueprint.zip");
+                showNotification('蓝图压缩包已下载！');
+            });
+        }
+
+        // 导出蓝图（单个文件）
+        function exportBlueprint() {
+            const json = jsonDisplay.textContent;
+            const blob = new Blob([json], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'Blueprint.txt';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            
+            // 清理
+            setTimeout(() => {
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(url);
+                showNotification('蓝图已导出！');
+            }, 100);
+        }
+
+        // 重置设计
+        function resetDesign() {
+            state.parts = [];
+            state.selectedParts = [];
+            state.addPartPoints = [];
+            state.isAddingPart = false;
+            rotationIndicator.style.display = 'none';
+            fixedPointIndicator.style.display = 'none';
+            updateJsonDisplay();
+            saveStateToHistory();
+            draw();
+            showNotification('蓝图已清空！');
+        }
+        
+        // 保存状态到历史记录
+        function saveStateToHistory() {
+            // 只保存最近100个状态
+            if (state.history.length > 100) {
+                state.history.shift();
+            }
+            
+            // 保存当前状态
+            state.history.push({
+                parts: JSON.parse(JSON.stringify(state.parts)),
+                offset: {...state.offset},
+                zoom: state.zoom,
+                selectedParts: [...state.selectedParts]
+            });
+            
+            state.currentHistoryIndex = state.history.length - 1;
+            undoBtn.disabled = false;
+        }
+        
+        // 撤销操作
+        function undo() {
+            if (state.currentHistoryIndex > 0) {
+                state.currentHistoryIndex--;
+                const prevState = state.history[state.currentHistoryIndex];
+                
+                state.parts = JSON.parse(JSON.stringify(prevState.parts));
+                state.offset = {...prevState.offset};
+                state.zoom = prevState.zoom;
+                state.selectedParts = [...prevState.selectedParts];
+                
+                zoomLevelEl.textContent = `${Math.round(state.zoom * 100)}%`;
+                updateJsonDisplay();
+                draw();
+                showNotification('已撤回操作');
+            } else {
+                showNotification('无法撤回更多操作');
+            }
+        }
+        
+        // 导入背景图片
+        function importImage() {
+            imageUpload.click();
+        }
+        
+        // 处理图片上传
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    state.backgroundImage = img;
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                    document.querySelector('.no-image').style.display = 'none';
+                    draw();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 清除背景图片
+        function clearImage() {
+            state.backgroundImage = null;
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+            document.querySelector('.no-image').style.display = 'block';
+            draw();
+        }
+        
+        // 更新图片透明度
+        function updateImageOpacity() {
+            const value = imageOpacity.value;
+            opacityValue.textContent = value;
+            state.imageOpacity = value / 100;
+            draw();
+        }
+        
+        // 更新烧灼值
+        function updateIntensity() {
+            let value = parseFloat(intensityInput.value);
+            
+            // 确保值在0-1.5之间
+            if (value < 0) value = 0;
+            if (value > 1.5) value = 1.5;
+            
+            state.intensity = value;
+            intensitySlider.value = value;
+            intensityInput.value = value.toFixed(1);
+            intensityValue.textContent = value.toFixed(1);
+            
+            // 更新选中零件的烧灼值
+            if (state.selectedParts.length > 0) {
+                state.selectedParts.forEach(part => {
+                    part.intensity = value;
+                });
+                updateJsonDisplay();
+            }
+        }
+
+        // 事件监听器
+        moveModeBtn.addEventListener('click', () => {
+            state.mode = 'move';
+            moveModeBtn.classList.add('active');
+            addModeBtn.classList.remove('active');
+            state.currentPart = null;
+            document.querySelectorAll('.part-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        });
+
+        addModeBtn.addEventListener('click', () => {
+            state.mode = 'add';
+            addModeBtn.classList.add('active');
+            moveModeBtn.classList.remove('active');
+        });
+
+        fuelTankBtn.addEventListener('click', () => {
+            if (state.mode === 'add') {
+                state.currentPart = 'fuel_tank';
+                document.querySelectorAll('.part-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                fuelTankBtn.classList.add('active');
+            }
+        });
+
+        zoomInBtn.addEventListener('click', () => {
+            state.zoom *= 1.2;
+            state.zoom = Math.min(5, state.zoom);
+            zoomLevelEl.textContent = `${Math.round(state.zoom * 100)}%`;
+            draw();
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            state.zoom /= 1.2;
+            state.zoom = Math.max(0.1, state.zoom);
+            zoomLevelEl.textContent = `${Math.round(state.zoom * 100)}%`;
+            draw();
+        });
+
+        resetZoomBtn.addEventListener('click', () => {
+            state.zoom = 1.0;
+            state.offset = { x: 0, y: 0 };
+            zoomLevelEl.textContent = '100%';
+            draw();
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const moveSpeed = 20;
+            switch(e.key.toLowerCase()) {
+                case 'w': state.offset.y += moveSpeed; break;
+                case 'a': state.offset.x += moveSpeed; break;
+                case 's': state.offset.y -= moveSpeed; break;
+                case 'd': state.offset.x -= moveSpeed; break;
+                case 'delete':
+                    state.parts = state.parts.filter(part => !state.selectedParts.includes(part));
+                    state.selectedParts = [];
+                    updateJsonDisplay();
+                    saveStateToHistory();
+                    draw();
+                    break;
+                case 'z':
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        undo();
+                    }
+                    break;
+                default: return;
+            }
+            draw();
+        });
+
+        // 按钮事件
+        copyJsonBtn.addEventListener('click', copyJsonToClipboard);
+        downloadZipBtn.addEventListener('click', downloadBlueprintZip);
+        exportBtn.addEventListener('click', exportBlueprint);
+        resetBtn.addEventListener('click', resetDesign);
+        undoBtn.addEventListener('click', undo);
+        importImageBtn.addEventListener('click', importImage);
+        clearImageBtn.addEventListener('click', clearImage);
+        imageUpload.addEventListener('change', handleImageUpload);
+        imageOpacity.addEventListener('input', updateImageOpacity);
+        intensitySlider.addEventListener('input', function() {
+            intensityInput.value = this.value;
+            updateIntensity();
+        });
+        intensityInput.addEventListener('change', updateIntensity);
+        intensityInput.addEventListener('input', updateIntensity);
+
+        imageScale.addEventListener('input', function() {
+            state.imageScale = parseInt(this.value) / 10000;
+            scaleValue.textContent = this.value;
+            draw();
+        });
+
+        // 移动端标签页切换
+        mobileTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                
+                // 更新标签状态
+                mobileTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // 显示对应面板
+                panelContents.forEach(panel => panel.classList.remove('active'));
+                document.getElementById(`${tabId}-panel`).classList.add('active');
+            });
+        });
+
+        // 初始化
+        initCanvas();
+        updateJsonDisplay();
+        zoomLevelEl.textContent = '100%';
+        draw();
+        
+        // 初始化烧灼值预览
+        updateIntensity();
+    </script>
+</body>
+</html>
