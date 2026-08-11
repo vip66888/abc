@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>天际时代｜SKYERA TECHNOENERGY SPACE</title>
+<style>
+:root{--bg:#050b13;--text:#f5f8fc;--muted:#94a8bc;--line:#20374d;--blue:#9cc8f0;--red:#d85d66}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Microsoft YaHei",sans-serif}
+a{text-decoration:none;color:inherit}.nav{position:fixed;z-index:20;top:0;width:100%;height:78px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#050b13f5,transparent);backdrop-filter:blur(9px)}
+.brand{display:flex;align-items:center;gap:14px}.logo-image{
+    width:180px;
+    height:auto;
+    display:block;
+    object-fit:contain;
+}.brand b{letter-spacing:2px}.brand small{display:block;font-size:8px;letter-spacing:2.5px;color:#8095aa;margin-top:4px}
+.menu{display:flex;gap:30px;font-size:10px;letter-spacing:1.8px;color:#b8c7d7}.menu a:hover{color:#fff}
+.hero{height:100vh;min-height:680px;display:flex;align-items:center;padding:100px 7vw;position:relative;overflow:hidden;background:radial-gradient(ellipse at 75% 50%,#245d8b55,transparent 42%),linear-gradient(145deg,#06101b,#0a1928 55%,#040910)}
+.stars{position:absolute;inset:0;opacity:.5;background-image:radial-gradient(1px 1px at 12% 24%,#fff,transparent),radial-gradient(1px 1px at 31% 14%,#fff,transparent),radial-gradient(1px 1px at 66% 19%,#fff,transparent),radial-gradient(1px 1px at 84% 31%,#fff,transparent),radial-gradient(1px 1px at 57% 72%,#fff,transparent),radial-gradient(1px 1px at 19% 79%,#fff,transparent),radial-gradient(1px 1px at 92% 78%,#fff,transparent)}
+.orbit{position:absolute;width:76vw;height:25vw;border:1px solid #8bb7dc25;border-radius:50%;right:-16vw;top:45%;transform:rotate(-18deg)}
+.hero-content{position:relative;z-index:2;max-width:1400px;width:100%}.eyebrow{font-size:10px;letter-spacing:4px;color:var(--blue)}
+.hero h1{white-space:nowrap;font-size:clamp(40px,5.3vw,90px);line-height:1.02;letter-spacing:-5px;margin:22px 0 18px;background:linear-gradient(100deg,#ffffff 5%,#dbeaf8 38%,#83b6e5 68%,#ffffff 96%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 45px #78b3e526}
+.hero p{font-size:18px;letter-spacing:3px;background:linear-gradient(90deg,#fff,#91bce2,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.actions{margin-top:38px;display:flex;gap:12px}.btn{padding:13px 24px;border:1px solid #5a7895;font-size:10px;letter-spacing:1.7px;transition:.25s}.btn.primary{background:#eef5fb;color:#07111c;border-color:#eef5fb}.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px #0005}
+.scroll{position:absolute;bottom:30px;left:7vw;color:#6d8499;font-size:9px;letter-spacing:3px}
+section{padding:120px 7vw;max-width:1550px;margin:auto}.head{display:flex;justify-content:space-between;align-items:end;gap:50px;margin-bottom:55px}h2{white-space:nowrap;font-size:clamp(38px,5.2vw,76px);letter-spacing:-4px;margin:12px 0;background:linear-gradient(100deg,#fff,#a8c9e8 55%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{max-width:600px;color:var(--muted);line-height:1.9;font-size:16px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:2px}.panel,.metric,.card,.news article{background:#091522;border:1px solid var(--line)}.panel{padding:42px}.panel h3{font-size:25px;margin:10px 0 20px}.panel p,.card p,.news p{color:var(--muted);line-height:1.8}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}.metric{padding:30px}.metric strong{font-size:36px;background:linear-gradient(120deg,#fff,#77aee0);-webkit-background-clip:text;color:transparent}.metric span{display:block;color:#71879d;font-size:9px;letter-spacing:2px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}.card{min-height:245px;padding:34px}.num{color:#78a2c7;font-size:11px;letter-spacing:2px}.card h3{margin-top:42px;font-size:18px;letter-spacing:1px;background:linear-gradient(90deg,#fff,#8fbbe1);-webkit-background-clip:text;color:transparent}
+.project{min-height:500px;padding:55px;display:flex;align-items:flex-end;border:1px solid var(--line);background:radial-gradient(circle at 72% 35%,#3d709944,transparent 20%),linear-gradient(135deg,#102c45,#07111c 65%);position:relative;overflow:hidden}.project:before{content:"SKYERA";position:absolute;right:-25px;top:30px;font-size:clamp(70px,12vw,170px);font-weight:900;letter-spacing:-10px;color:#fff;opacity:.025}.project h3{white-space:nowrap;font-size:clamp(30px,5vw,65px);margin:10px 0;background:linear-gradient(100deg,#fff,#8dbde8,#fff);-webkit-background-clip:text;color:transparent}.project p{color:#9eb1c4}
+.news{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}.news article{padding:30px}.date{font-size:9px;color:#718ba4;letter-spacing:2px}.news h3{font-size:18px;line-height:1.5}
+.contact{max-width:none;background:#08131f;border-top:1px solid var(--line)}.contact-inner{max-width:1550px;margin:auto;padding:120px 7vw}.contact h2{white-space:normal}.contact p{color:var(--muted);letter-spacing:2px}
+footer{padding:30px 7vw;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#62778c;font-size:9px;letter-spacing:1px}
+@media(max-width:850px){.nav{height:68px}.menu{display:none}.brand small{font-size:7px}.hero{min-height:600px;padding:100px 7vw}.hero h1{font-size:clamp(35px,10vw,70px);letter-spacing:-3px}.head{display:block}.lead{margin-top:25px}.about,.grid,.news{grid-template-columns:1fr}.project{min-height:380px;padding:32px}.project h3{white-space:normal}h2{white-space:normal}.contact-inner{padding:90px 7vw}footer{display:block;line-height:2.2}}
+</style>
+</head>
+<body>
+<header class="nav">
+<a class="brand" href="#top"><img class="logo-image" src="images/logo.png"alt="天际时代"></a>
+<nav class="menu"><a href="#about">ABOUT</a><a href="#technology">TECHNOLOGY</a><a href="#projects">PROJECTS</a><a href="#news">NEWS</a><a href="#contact">CONTACT</a></nav>
+</header>
+<main id="top">
+<section class="hero"><div class="stars"></div><div class="orbit"></div><div class="hero-content"><div class="eyebrow">SKYERA TECHNOENERGY SPACE</div><h1>精进诠释时代 · 技术映射未来</h1><p>臻于实践 · 致于求索</p><div class="actions"><a class="btn primary" href="#about">关于天际时代</a><a class="btn" href="#technology">求索技术</a></div></div><div class="scroll">SCROLL TO EXPLORE ↓</div></section>
+<section id="about"><div class="head"><div><div class="eyebrow">01 / ABOUT SKYERA</div><h2>关于天际时代</h2></div><p class="lead">天际时代是一家虚拟航天科技企业，专注于先进航天运输、空间动力与未来空间技术的探索。</p></div><div class="about"><div class="panel"><div class="eyebrow">OUR VISION</div><h3>让更远的空间，成为可以抵达的未来。</h3><p>以工程实践为基础，以技术探索为驱动，构建面向未来的航天技术体系。我们关注可靠、高效与可持续的空间运输，并持续探索深空任务所需的新技术。</p></div><div class="metrics"><div class="metric"><strong>01</strong><span>ENGINEERING</span></div><div class="metric"><strong>02</strong><span>PROPULSION</span></div><div class="metric"><strong>03</strong><span>SPACE TRANSPORT</span></div><div class="metric"><strong>∞</strong><span>FUTURE</span></div></div></div></section>
+<section id="technology"><div class="head"><div><div class="eyebrow">02 / TECHNOLOGY</div><h2>技术方向</h2></div><p class="lead">从发动机到整箭，从近地空间到更遥远的深空，持续探索航天工程的关键环节。</p></div><div class="grid">
+<article class="card"><div class="num">01</div><h3>SPACE PROPULSION</h3><p>探索先进空间动力与推进系统，为未来航天器提供高效可靠的动力。</p></article>
+<article class="card"><div class="num">02</div><h3>LAUNCH VEHICLE</h3><p>面向新一代航天运输需求，探索运载火箭总体与系统设计。</p></article>
+<article class="card"><div class="num">03</div><h3>REUSABILITY</h3><p>关注可重复使用技术与快速周转能力，降低空间运输的长期成本。</p></article>
+<article class="card"><div class="num">04</div><h3>AERODYNAMICS</h3><p>研究高速飞行器气动布局、载荷环境与飞行性能。</p></article>
+<article class="card"><div class="num">05</div><h3>SPACECRAFT</h3><p>探索空间平台与航天器系统，为未来空间任务提供基础能力。</p></article>
+<article class="card"><div class="num">06</div><h3>DEEP SPACE</h3><p>面向月球、火星及更远空间的长期探索任务进行技术构想。</p></article>
+</div></section>
+<section id="projects"><div class="head"><div><div class="eyebrow">03 / PROJECTS</div><h2>项目</h2></div><p class="lead">展示天际时代未来的运载火箭、航天器和空间动力项目。</p></div><div class="project"><div><div class="eyebrow">PROJECT 01 / CONCEPT</div><h3>SKYERA LAUNCH SYSTEM</h3><p>下一代空间运输系统概念项目 · 先进动力 · 可重复使用</p></div></div></section>
+<section id="news"><div class="head"><div><div class="eyebrow">04 / NEWS</div><h2>动态</h2></div></div><div class="news"><article><div class="date">2026.08.09</div><h3>天际时代官方网站正式上线</h3><p>面向未来航天技术的品牌与项目展示平台正式建立。</p></article><article><div class="date">PROJECT</div><h3>新一代空间动力概念研究</h3><p>持续探索高效空间动力系统与未来任务应用场景。</p></article><article><div class="date">FUTURE</div><h3>构想下一代空间运输体系</h3><p>从可重复使用到深空探索，建立长期技术路线。</p></article></div></section>
+<section class="contact" id="contact"><div class="contact-inner"><div class="eyebrow">05 / CONTACT</div><h2>向更高处探索。向更远处出发。</h2><p>SKYERA TECHNOENERGY SPACE · BUILD THE FUTURE · EXPLORE THE SKY</p></div></section>
+</main>
+<footer><span>© 2026 SKYERA TECHNOENERGY SPACE</span><span>天际时代 · 臻于实践 · 致于求索</span></footer>
+</body></html>
